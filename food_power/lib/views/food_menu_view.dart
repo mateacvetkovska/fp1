@@ -1,13 +1,12 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:food_power/database/database_helper.dart';
 import 'package:food_power/models/item.dart';
 import 'package:food_power/views/AboutUs.dart';
 import 'package:food_power/views/CartPage.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:food_power/views/ItemDetailPage.dart';
+import 'package:food_power/views/UserProfilePage.dart';
 import '../widgets/food_item_cart.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'ItemDetailPage.dart';
-import 'UserProfilePage.dart'; // Ensure this import is correct
 
 class FoodMenuScreen extends StatefulWidget {
   const FoodMenuScreen({Key? key}) : super(key: key);
@@ -19,10 +18,23 @@ class FoodMenuScreen extends StatefulWidget {
 class _FoodMenuScreenState extends State<FoodMenuScreen> {
   late Future<List<Item>> itemsFuture;
   List<Item> favorites = [];
+  late Item _mealOfTheDay;
+  bool isNotificationUnread = true; // Add this boolean flag
+
   @override
   void initState() {
     super.initState();
     itemsFuture = DatabaseHelper.instance.getAllCatalogItems();
+    _setMealOfTheDay();
+  }
+
+  void _setMealOfTheDay() {
+    final Random random = Random();
+    itemsFuture.then((items) {
+      setState(() {
+        _mealOfTheDay = items[random.nextInt(items.length)];
+      });
+    });
   }
 
   int _selectedIndex = 0;
@@ -34,19 +46,67 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.info_outline, color: Colors.black), onPressed: () {Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => AboutUsPage()));}),
-        title: Image.asset('lib/assets/foodpower_logo.png', height: 50),
-        actions: <Widget>[
-          IconButton(icon: const Icon(Icons.notifications_none, color: Colors.black), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black),
-              onPressed: () {
+        leading: IconButton(
+          icon: const Icon(Icons.info_outline, color: Colors.black45),
+          onPressed: () {
             Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AboutUsPage()),
+            );
+          },
+        ),
+        title: Image.asset(
+          'lib/assets/foodpower_logo.png',
+          height: 50,
+          alignment: Alignment.center,
+        ),
+        actions: <Widget>[
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_none, color: Colors.black45),
+                onPressed: () {
+                  _showMealOfTheDay(context);
+                  setState(() {
+                    isNotificationUnread = false; // Dismiss the badge when the notifications are opened
+                  });
+                },
+              ),
+              if (isNotificationUnread) // Show badge if there's an unread notification
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  child: Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+                    child: Text(
+                      '1',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black45),
+            onPressed: () {
+              Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => CartPage()));}),
+                MaterialPageRoute(builder: (context) => CartPage()),
+              );
+            },
+          ),
         ],
       ),
       body: Padding(
@@ -54,8 +114,15 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Our Menu', style: GoogleFonts.nunitoSans(
-              textStyle: TextStyle(color: Colors.teal[700], letterSpacing: .5, fontSize: 25, fontWeight: FontWeight.bold,),)),
+            Text(
+              'Our Menu',
+              style: TextStyle(
+                color: Colors.teal[700],
+                letterSpacing: .5,
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 16),
             Expanded(
               child: FutureBuilder<List<Item>>(
@@ -67,13 +134,13 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           final item = snapshot.data![index];
-                          return GestureDetector( // Use GestureDetector for tap handling
+                          return GestureDetector(
                             onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => ItemDetailPage(item: item)),
                             ),
                             child: FoodItemCard(
-                              image: 'lib/${item.imageUrl}', // Adjust as per your asset path
+                              image: 'lib/${item.imageUrl}',
                               title: item.name,
                               price: '\$${item.price.toStringAsFixed(2)}',
                               rating: item.rating.toString(),
@@ -94,7 +161,7 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items:  [
+        items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
@@ -103,6 +170,7 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
       ),
     );
   }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -115,5 +183,44 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
     }
     // Handle other navigation for other tabs if necessary
   }
-}
 
+  void _showMealOfTheDay(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Meal of the Day'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Enjoy our special today:'),
+                SizedBox(height: 8),
+                Text(
+                  _mealOfTheDay != null ? _mealOfTheDay.name : 'No meal selected',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                _mealOfTheDay != null
+                    ? Image.asset(
+                  'lib/${_mealOfTheDay.imageUrl}',
+                  height: 220,
+                  width: 220,
+                  fit: BoxFit.cover,
+                )
+                    : SizedBox.shrink(),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

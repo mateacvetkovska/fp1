@@ -26,12 +26,11 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       appBar: AppBar(
         title: Text(widget.item.name),
         actions: <Widget>[
-          IconButton(icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black),
+          IconButton(
+              icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black45),
               onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => CartPage()));}),
+                Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+              }),
         ],
       ),
       body: SingleChildScrollView(
@@ -44,8 +43,17 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.item.name, style: GoogleFonts.nunitoSans(
-                    textStyle: TextStyle(color: Colors.black, letterSpacing: .5, fontSize: 25, fontWeight: FontWeight.bold,),)),
+                  Text(
+                    widget.item.name,
+                    style: GoogleFonts.nunitoSans(
+                      textStyle: TextStyle(
+                        color: Colors.black,
+                        letterSpacing: .5,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 8),
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -55,14 +63,39 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                       IconButton(icon: Icon(Icons.add), onPressed: _incrementQuantity),
                     ],
                   ),
-                  Text('\$${widget.item.price.toStringAsFixed(2)}',
-                      style: GoogleFonts.nunitoSans(
-                    textStyle: TextStyle(color: Colors.black, letterSpacing: .5, fontSize: 20, fontWeight: FontWeight.bold,),)),
+                  Text(
+                    '\$${widget.item.price.toStringAsFixed(2)}',
+                    style: GoogleFonts.nunitoSans(
+                      textStyle: TextStyle(
+                        color: Colors.black,
+                        letterSpacing: .5,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 16),
-                  Text('Description', style: GoogleFonts.nunitoSans(
-                    textStyle: TextStyle(color: Colors.black, letterSpacing: .5, fontSize: 25, fontWeight:FontWeight.bold ),)),
-                  Text(widget.item.description, style: GoogleFonts.nunitoSans(
-                    textStyle: TextStyle(color: Colors.black, letterSpacing: .5, fontSize: 20,),)),
+                  Text(
+                    'Description',
+                    style: GoogleFonts.nunitoSans(
+                      textStyle: TextStyle(
+                        color: Colors.black,
+                        letterSpacing: .5,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    widget.item.description,
+                    style: GoogleFonts.nunitoSans(
+                      textStyle: TextStyle(
+                        color: Colors.black,
+                        letterSpacing: .5,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 100),
                 ],
               ),
@@ -71,10 +104,18 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.teal[700], // Set background color to teal[700]
         onPressed: _addItemToCart,
-        icon: Icon(Icons.shopping_cart),
-        label: Text('Add to cart', style: GoogleFonts.nunitoSans(
-          textStyle: TextStyle(color: Colors.black, letterSpacing: .5, fontSize: 20, fontWeight: FontWeight.bold,),)),
+        icon: Icon(Icons.shopping_cart, color: Colors.white),
+        label: Text(
+          'Add to cart',
+          style: TextStyle(
+            color: Colors.white, // Set text color to white
+            letterSpacing: .5,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -87,8 +128,6 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   void _decrementQuantity() {
     if (quantity > 1) setState(() => quantity--);
   }
-
-
 
   Future<void> _addItemToCart() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -105,5 +144,4 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
     await DatabaseHelper.instance.addToCart(widget.item.id, userId, quantity);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added to cart')));
   }
-
 }
