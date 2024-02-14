@@ -23,7 +23,7 @@ class LoginPage extends StatelessWidget {
               Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.arrow_back_ios_outlined, color: Colors.white, size: 40,),
+                    icon: Icon(Icons.arrow_back, color: Colors.white, size: 40,),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
