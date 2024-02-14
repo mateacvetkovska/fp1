@@ -1,12 +1,13 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import '../models/item.dart'; // Update the path as necessary
+import '../models/item.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
 
   DatabaseHelper._init();
+
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -19,6 +20,7 @@ class DatabaseHelper {
     final path = join(dbPath, filePath);
     return await openDatabase(path, version: 1, onCreate: _createDB);
   }
+
 
   Future _createDB(Database db, int version) async {
     await db.execute('''
