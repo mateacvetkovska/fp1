@@ -1,10 +1,17 @@
+import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:food_power/database/database_helper.dart';
+import 'package:food_power/views/CheckoutPage.dart';
+import 'package:food_power/views/SummaryPage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
+import 'DateTimePage.dart';
 
 
 
@@ -34,6 +41,21 @@ Future<List<LatLng>> fetchRoute(LatLng start, LatLng destination, String apiKey)
   }
 }
 class MapPage extends StatefulWidget {
+  final String userId;
+  final DateTime selectedDate;
+  final TimeOfDay selectedTime;
+  final DeliveryOption deliveryOption;
+  final double totalPrice;
+
+  MapPage({
+    Key? key,
+    required this.selectedDate,
+    required this.selectedTime,
+    required this.deliveryOption,
+    required this.totalPrice,
+    required this.userId,
+  }) : super(key: key);
+
   @override
   _MapPageState createState() => _MapPageState();
 }
@@ -41,23 +63,127 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   final MapController _mapController = MapController();
   LatLng? _userLocation;
-  final LatLng _restaurantLocation = LatLng(41.99278101, 21.4254378); // Example coordinates
+  final LatLng _restaurantLocation = LatLng(41.99278101, 21.4254378);
   List<LatLng>? _routePoints; // State variable to store route points
   bool _isFetchingLocation = true; // New variable to track location fetching status
-
+  LatLng? _searchedLocation;
   @override
   void initState() {
     super.initState();
     _determinePosition();
   }
 
+  double calculateDistance(LatLng start, LatLng destination) {
+    var earthRadiusKm = 6371;
+    var dLat = _degreesToRadians(destination.latitude - start.latitude);
+    var dLon = _degreesToRadians(destination.longitude - start.longitude);
+
+    var startLatInRadians = _degreesToRadians(start.latitude);
+    var destinationLatInRadians = _degreesToRadians(destination.latitude);
+
+    var a = sin(dLat / 2) * sin(dLat / 2) +
+        sin(dLon / 2) * sin(dLon / 2) * cos(startLatInRadians) * cos(destinationLatInRadians);
+    var c = 2 * asin(sqrt(a));
+
+    return earthRadiusKm * c;
+  }
+
+  double _degreesToRadians(degrees) {
+    return degrees * pi / 180;
+  }
+
+  double calculateDeliveryFee(LatLng userLocation, LatLng restaurantLocation) {
+    var distance = calculateDistance(userLocation, restaurantLocation);
+    if (distance <= 1) {
+      return 0; // Free delivery for distances of 1km or less
+    } else {
+      return (distance - 1) * 2; // $2 per km after the first km
+    }
+  }
+
+  void showDeliveryFeeBottomSheet(BuildContext context, double deliveryFee) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return Container(
+          color: Colors.white, // Set the background color to white
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Use minimum space necessary
+            children: <Widget>[
+              ListTile(
+                title: Text('Delivery Fee', style: TextStyle(color: Colors.black)), // Black text for title
+                subtitle: Text('\$${deliveryFee.toStringAsFixed(2)}', style: TextStyle(color: Colors.black54)), // Black text for subtitle
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: Icon(Icons.cancel, color: Colors.black), // Black icon for "Cancel"
+                      label: Text('Cancel', style: TextStyle(color: Colors.black)), // Black text for "Cancel"
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the bottom sheet
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.white, // Background color for cancel button
+                        onPrimary: Colors.black, // Text color for cancel button (unused due to explicit style)
+                        side: BorderSide(color: Colors.black, width: 1), // Border color
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8), // Spacing between buttons
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: Icon(Icons.arrow_forward, color: Colors.white), // White icon for "Next"
+                      label: Text('Next', style: TextStyle(color: Colors.white)), // White text for "Next"
+                      onPressed: () async {
+                        final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+                        final totalPrice = await DatabaseHelper.instance.getTotalCartPrice(userId);
+                        Navigator.of(context).pop(); // Close the bottom sheet
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => SummaryPage(
+                              userId: userId,
+                              totalPrice: totalPrice,
+                              deliveryFee: deliveryFee,
+                              selectedDate: widget.selectedDate,
+                              selectedTime: widget.selectedTime,
+                              isPickup: false), // Replace with your checkout page
+                        ));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.black, // Background color for next button
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _fetchRoute() async {
+    if (_restaurantLocation == null || _searchedLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please ensure a destination is selected.')),
+      );
+      return;
+    }
     try {
       // Assuming 'your-api-key' is replaced with the actual API key you obtained
-      final points = await fetchRoute(_userLocation!, _restaurantLocation, '5b3ce3597851110001cf62485ebd3bf1c92d4d75b3798d9fee87e4bb');
+      final points = await fetchRoute(_restaurantLocation, _searchedLocation!, '5b3ce3597851110001cf62485ebd3bf1c92d4d75b3798d9fee87e4bb');
       setState(() {
         _routePoints = points; // Update the route points to draw the route on the map
       });
+
+      // Calculate the delivery fee after fetching the route
+      double deliveryFee = calculateDeliveryFee(_restaurantLocation, _searchedLocation!);
+
+      // Show the delivery fee in a dialog
+      showDeliveryFeeBottomSheet(context, deliveryFee);
+
     } catch (e) {
       // Handle errors (e.g., show a toast or a dialog)
       print('Error fetching route: $e');
@@ -129,9 +255,10 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  void _handleTap(TapPosition tapPosition,LatLng tappedPoint) {
+  void _handleTap(TapPosition tapPosition, LatLng latlng) {
     setState(() {
-      _userLocation = tappedPoint;
+      _searchedLocation = latlng;
+      _mapController.move(latlng, _mapController.zoom);
     });
   }
 
@@ -140,15 +267,22 @@ class _MapPageState extends State<MapPage> {
     print("Searching for address: ${_addressController.text}");
     try {
       List<Location> locations = await locationFromAddress(_addressController.text);
-      print("Locations found: $locations");
       if (locations.isNotEmpty) {
-        print("Moving map to: ${locations.first.latitude}, ${locations.first.longitude}");
-        _mapController.move(LatLng(locations.first.latitude, locations.first.longitude), 14.0);
+        setState(() {
+          _searchedLocation = LatLng(locations.first.latitude, locations.first.longitude); // Set the searched location
+          _mapController.move(_searchedLocation!, 14.0 ); // Move the map to the searched location
+        });
       } else {
         print("No locations found.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("No locations found. Please try a different address.")),
+        );
       }
     } catch (e) {
       print("Error occurred: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error occurred while searching for address.")),
+      );
       // Optionally, inform the user with a dialog or snackbar
     }
   }
@@ -222,10 +356,25 @@ class _MapPageState extends State<MapPage> {
 
 
   Widget _buildMap() {
+    var markers = <Marker>[
+      Marker(
+        width: 80.0,
+        height: 80.0,
+        point: _restaurantLocation,
+        child: Icon(Icons.location_on, color: Colors.red),
+      ),
+      if (_searchedLocation != null)
+        Marker(
+          width: 80.0,
+          height: 80.0,
+          point: _searchedLocation!,
+          child: Icon(Icons.location_pin, color: Colors.yellow),
+        ),
+    ];
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
-        center: _userLocation ?? LatLng(0, 0), // Fallback to a default location
+        center: _restaurantLocation, // Fallback to a default location
         zoom: 13.0,
         onTap: _handleTap,
       ),
@@ -234,22 +383,7 @@ class _MapPageState extends State<MapPage> {
             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             subdomains: ['a', 'b', 'c'],
         ),
-        MarkerLayer(
-            markers: [
-              Marker(
-                width: 80.0,
-                height: 80.0,
-                point: _userLocation ?? LatLng(0, 0),
-                child: Icon(Icons.location_pin, color: Colors.blue),
-              ),
-              Marker(
-                width: 80.0,
-                height: 80.0,
-                point: _restaurantLocation,
-                child:  Icon(Icons.location_on, color: Colors.red),
-    ),
-                ],
-          ),
+        MarkerLayer( markers: markers),
         if (_routePoints != null) // Conditionally add the PolylineLayerWidget
           PolylineLayer(
               polylines: [

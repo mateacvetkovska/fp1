@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:food_power/views/MapPage.dart';
-
+import 'package:food_power/views/CartPage.dart';
+import '../database/database_helper.dart';
 import 'CheckoutPage.dart';
+import 'SummaryPage.dart';
 
 class DateTimeSelectionPage extends StatefulWidget {
   @override
@@ -118,21 +121,48 @@ class _DateTimeSelectionPageState extends State<DateTimeSelectionPage> {
               width: double.infinity,
               padding: EdgeInsets.all(8.0),
               child: ElevatedButton(
-                child: Text('Checkout'),
+                child: Text('Proceed'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 20.0),
                   textStyle: TextStyle(fontSize: 18.0),
                 ),
-                onPressed: () {
+                onPressed: () async {
+                  final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+                  final totalPrice = await DatabaseHelper.instance.getTotalCartPrice(userId);
+
                   // Check the selected delivery option and navigate accordingly
                   if (_deliveryOption == DeliveryOption.delivery) {
                     // If 'Delivery' is selected, navigate to the MapPage
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => MapPage()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MapPage(
+                          userId: userId,
+                          selectedDate: selectedDate!,
+                          selectedTime: selectedTime!,
+                          deliveryOption: _deliveryOption!,
+                          totalPrice: totalPrice,
+                        ),
+                      ),
+                    );
                   } else {
                     // If 'Pick Up' is selected, navigate to the CheckoutPage
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutPage()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SummaryPage(
+                          userId: userId,
+                          totalPrice: totalPrice ,// Calculate or retrieve total price from cart items,
+                          deliveryAddress: 'Not Applicable', // Since it's a pickup
+                          deliveryFee: 0.0, // No delivery fee for pickup
+                          selectedDate: selectedDate!,
+                          selectedTime: selectedTime!,
+                          isPickup: true,
+                        ),
+                      ),
+                    );
                   }
                 },
               ),

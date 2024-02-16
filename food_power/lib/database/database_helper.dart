@@ -1,5 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import '../models/Order.dart';
 import '../models/item.dart';
 
 class DatabaseHelper {
@@ -18,7 +19,7 @@ class DatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(path, version: 2, onCreate: _createDB, onUpgrade: _upgradeDB);
   }
 
 
@@ -44,8 +45,41 @@ class DatabaseHelper {
       )
     ''');
 
+    await db.execute('''
+  CREATE TABLE orders(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId TEXT,
+    totalPrice REAL,
+    deliveryAddress TEXT,
+    deliveryFee REAL,
+    dateTime TEXT,
+    isPickup INTEGER
+  )
+''');
+
+
     await _insertInitialData(db);
   }
+
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // This assumes version 2 is where you introduced the orders table
+      await db.execute('''
+        CREATE TABLE orders(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          userId TEXT,
+          totalPrice REAL,
+          deliveryAddress TEXT,
+          deliveryFee REAL,
+          dateTime TEXT,
+          isPickup INTEGER
+        )
+      ''');
+    }
+    // Add more conditions for further version upgrades
+  }
+
+
 
 
   Future<void> _insertInitialData(Database db) async {
@@ -119,9 +153,6 @@ class DatabaseHelper {
     return items;
   }
 
-
-
-
   Future<double> getTotalCartPrice(String userId) async {
     final db = await database;
     var total = 0.0;
@@ -145,5 +176,28 @@ class DatabaseHelper {
   Future close() async {
     final db = await instance.database;
     db.close();
+  }
+
+  Future<void> insertOrder(Order order) async {
+    final db = await database;
+    final orderMap = order.toMap()..removeWhere((key, value) => key == 'id' && value == null);
+    await db.insert(
+      'orders',
+      orderMap,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Order>> getOrders(String userId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'orders',
+      where: "userId = ?",
+      whereArgs: [userId],
+    );
+
+    return List.generate(maps.length, (i) {
+      return Order.fromMap(maps[i]);
+    });
   }
 }

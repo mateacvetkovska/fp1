@@ -101,23 +101,9 @@ class _CartPageState extends State<CartPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Card(
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(20.0,),
                     child: Column(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Subtotal'),
-                            Text('\$${total.toStringAsFixed(2)}'),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Delivery fee'),
-                            Text('Free'),
-                          ],
-                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
