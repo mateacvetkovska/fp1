@@ -368,7 +368,7 @@ class _MapPageState extends State<MapPage> {
           width: 80.0,
           height: 80.0,
           point: _searchedLocation!,
-          child: Icon(Icons.location_pin, color: Colors.yellow),
+          child: Icon(Icons.location_pin, color: Colors.blue),
         ),
     ];
     return FlutterMap(
