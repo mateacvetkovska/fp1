@@ -19,7 +19,7 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
   late Future<List<Item>> itemsFuture;
   List<Item> favorites = [];
   late Item _mealOfTheDay;
-  bool isNotificationUnread = true; // Add this boolean flag
+  bool isNotificationUnread = true;
 
   @override
   void initState() {
@@ -68,11 +68,11 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
                 onPressed: () {
                   _showMealOfTheDay(context);
                   setState(() {
-                    isNotificationUnread = false; // Dismiss the badge when the notifications are opened
+                    isNotificationUnread = false;
                   });
                 },
               ),
-              if (isNotificationUnread) // Show badge if there's an unread notification
+              if (isNotificationUnread)
                 Positioned(
                   left: 0,
                   top: 0,
@@ -175,13 +175,12 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
     setState(() {
       _selectedIndex = index;
     });
-    if (index == 1) { // Assuming the profile is the third item
+    if (index == 1) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => UserProfilePage()),
       );
     }
-    // Handle other navigation for other tabs if necessary
   }
 
   void _showMealOfTheDay(BuildContext context) {

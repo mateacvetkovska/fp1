@@ -80,7 +80,6 @@ class _AboutUsPageState extends State<AboutUsPage> with TickerProviderStateMixin
               ),
               SizedBox(height: 30),
               Center(child: Image.asset('lib/assets/food-cooker.gif')),
-              // Additional content here
             ],
           ),
         ),

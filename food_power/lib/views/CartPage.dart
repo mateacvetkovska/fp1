@@ -61,7 +61,7 @@ class _CartPageState extends State<CartPage> {
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
-                                Image.asset('lib/${item.imageUrl}', width: 64), // Item image
+                                Image.asset('lib/${item.imageUrl}', width: 64),
                                 SizedBox(width: 10),
                                 Expanded(
                                   child: Text(item.name, style: TextStyle(fontSize: 18)),
@@ -151,7 +151,7 @@ class _CartPageState extends State<CartPage> {
       await DatabaseHelper.instance.updateItemQuantity(item.id, userId, newQuantity);
       if (mounted) {
         setState(() {
-          cartItemsFuture = loadCartItems(); // Reload cart items to reflect the update
+          cartItemsFuture = loadCartItems();
         });
       }
     }
@@ -163,7 +163,7 @@ class _CartPageState extends State<CartPage> {
       await DatabaseHelper.instance.removeItemFromCart(item.id, userId);
       if (mounted) {
         setState(() {
-          cartItemsFuture = loadCartItems(); // Reload cart items to reflect the removal
+          cartItemsFuture = loadCartItems();
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${item.name} removed from cart')));
       }

@@ -40,8 +40,8 @@ class _ReviewPageState extends State<ReviewPage> {
           TextButton(
             child: Text('Settings'),
             onPressed: () {
-              AppSettings.openAppSettings(); // Open app settings
-              Navigator.of(context).pop(); // Close the dialog
+              AppSettings.openAppSettings();
+              Navigator.of(context).pop();
             },
           ),
         ],
@@ -50,10 +50,8 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Future<void> _sendReview() async {
-    // Placeholder for sending review to the database
     if (_imageFile != null) {
       File image = File(_imageFile!.path);
-      // Upload 'image' to your desired destination
       print('Image uploaded successfully!');
     }
 

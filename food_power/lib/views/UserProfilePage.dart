@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'food_delivery_home_page.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -17,7 +16,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
     user = FirebaseAuth.instance.currentUser;
   }
 
-  // Method to handle user logout
   Future<void> _logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => FoodDeliveryHomePage()));
@@ -30,12 +28,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
         title: Text(
           'Profile',
           style: TextStyle(
-            color: Colors.teal[700], // Teal[700] color for the title
+            color: Colors.teal[700],
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black45), // Black.45 color for the back arrow
+          icon: Icon(Icons.arrow_back, color: Colors.black45),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -50,15 +48,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
             children: [
               SizedBox(height: 20),
               CircleAvatar(
-                radius: 100, // Increased radius to make it bigger
-                backgroundImage: AssetImage('lib/assets/profile_picture.png'), // Corrected to use AssetImage
+                radius: 100,
+                backgroundImage: AssetImage('lib/assets/profile_picture.png'),
                 backgroundColor: Colors.transparent,
               ),
               SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.person), // User icon
+                  Icon(Icons.person),
                   SizedBox(width: 10),
                   Text(
                     '${user?.email ?? "Not logged in"}',
@@ -68,14 +66,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ),
               SizedBox(height: 20),
               SizedBox(
-                width: 300, // Set button width
-                height: 50, // Set button height
+                width: 300,
+                height: 50,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.teal[700], // Background color
-                    onPrimary: Colors.white, // Text Color (Foreground color)
+                    primary: Colors.teal[700],
+                    onPrimary: Colors.white,
                   ),
-                  onPressed: () => _logout(context), // Pass context to _logout method
+                  onPressed: () => _logout(context),
                   icon: Icon(Icons.logout),
                   label: Text('Logout'),
                 ),

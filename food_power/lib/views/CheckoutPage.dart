@@ -15,7 +15,7 @@ class CheckoutPage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Image.asset(
-          'lib/assets/foodpower_logo.png', // Replace with your logo asset path
+          'lib/assets/foodpower_logo.png',
           height: 40,
         ),
         centerTitle: true,
@@ -27,7 +27,7 @@ class CheckoutPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Image.asset(
-              'lib/assets/success_image.gif', // Replace with your success image asset path
+              'lib/assets/success_image.gif',
               width: 200,
               height: 200,
             ),

@@ -10,7 +10,7 @@ class CustomCard extends StatelessWidget {
     Key? key,
     required this.title,
     required this.text,
-    this.bgColor = const Color(0xFFF0EDEE), // A color between white and dirty white
+    this.bgColor = const Color(0xFFF0EDEE),
   }) : super(key: key);
 
   @override

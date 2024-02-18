@@ -41,7 +41,6 @@ class Item {
     );
   }
 
-  // Adding copyWith method
   Item copyWith({
     String? id,
     String? name,

@@ -3,7 +3,6 @@ import '../database/database_helper.dart';
 import '../models/item.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'CartPage.dart';
 
 class ItemDetailPage extends StatefulWidget {
@@ -104,13 +103,13 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.teal[700], // Set background color to teal[700]
+        backgroundColor: Colors.teal[700],
         onPressed: _addItemToCart,
         icon: Icon(Icons.shopping_cart, color: Colors.white),
         label: Text(
           'Add to cart',
           style: TextStyle(
-            color: Colors.white, // Set text color to white
+            color: Colors.white,
             letterSpacing: .5,
             fontSize: 20,
             fontWeight: FontWeight.w500,
@@ -132,7 +131,6 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   Future<void> _addItemToCart() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
 
-    // Ensure there's a logged-in user
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('You must be logged in to add items to the cart.')),
@@ -140,7 +138,6 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       return;
     }
 
-    // Assuming 'item.id' gives the catalogId you want to pass
     await DatabaseHelper.instance.addToCart(widget.item.id, userId, quantity);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added to cart')));
   }

@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import '../database/database_helper.dart';
-import '../models/item.dart'; // Update the path as necessary
+import '../models/item.dart';
 
 class CartController {
   final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
@@ -8,7 +8,7 @@ class CartController {
 
   Future<void> addToCart(Item item) async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
-    await _databaseHelper.addToCart(item.id, userId, 1); // Default to adding one item
+    await _databaseHelper.addToCart(item.id, userId, 1);
     _notifyListeners();
   }
 

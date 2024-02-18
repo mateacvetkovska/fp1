@@ -11,7 +11,6 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-    final topPadding = MediaQuery.of(context).padding.top;
 
     return Scaffold(
       body: Container(
@@ -89,7 +88,7 @@ class LoginPage extends StatelessWidget {
                   );
                   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FoodMenuScreen()));
                 } catch (e) {
-                  print(e); // Consider showing a user-friendly error message
+                  print(e);
                 }
               },
             ),

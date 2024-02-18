@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'dart:math';
-
-// Make sure these imports correctly point to your files
-import 'food_menu_view.dart';
-import 'SignUpPage.dart';
 import 'LoginPage.dart';
 
 class FoodDeliveryHomePage extends StatefulWidget {
@@ -19,10 +15,7 @@ class _FoodDeliveryHomePageState extends State<FoodDeliveryHomePage> {
   @override
   Widget build(BuildContext context) {
     double textContainerHeight = MediaQuery.of(context).size.height * 0.175;
-
-    // Assuming the screen's horizontal padding matches the row padding
     double screenPaddingHorizontal = 16.0;
-    // Adjust this value to visually align with the start of the button
     double textPaddingLeft = screenPaddingHorizontal;
 
     return Scaffold(
@@ -88,7 +81,7 @@ class _FoodDeliveryHomePageState extends State<FoodDeliveryHomePage> {
 
   Widget _buildActionButtons(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0), // Match the text padding for alignment
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         children: [
           ElevatedButton(

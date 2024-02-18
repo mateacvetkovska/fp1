@@ -63,7 +63,6 @@ class DatabaseHelper {
 
   Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      // This assumes version 2 is where you introduced the orders table
       await db.execute('''
         CREATE TABLE orders(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,17 +75,14 @@ class DatabaseHelper {
         )
       ''');
     }
-    // Add more conditions for further version upgrades
   }
 
 
 
 
   Future<void> _insertInitialData(Database db) async {
-    // Check if the 'catalog' table is empty and insert initial data if it is
     final List<Map<String, dynamic>> existingData = await db.query('catalog');
     if (existingData.isEmpty) {
-      // Note: Adjust the INSERT statement to include the rating for each item
       await db.rawInsert('''
       INSERT INTO catalog (id, name, description, price, imageUrl, rating) VALUES 
       ('1', 'Cheese Burger', 'A delicious cheeseburger with lettuce, tomato, and cheese.', 8.99, 'assets/burger.png', 4.5),
@@ -144,9 +140,7 @@ class DatabaseHelper {
         whereArgs: [map['catalogId']],
       );
       if (catalogMap.isNotEmpty) {
-        // Directly use Item.fromMap which includes 'rating'
         final item = Item.fromMap(catalogMap.first);
-        // 'copyWith' used here to adjust quantity; ensure your Item model's copyWith handles 'rating' if needed
         items.add(item.copyWith(quantity: map['quantity']));
       }
     }

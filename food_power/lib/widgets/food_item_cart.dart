@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:food_power/models/item.dart'; // Import your Item model
-import 'package:food_power/views/ItemDetailPage.dart'; // Ensure this import is correct
+import 'package:food_power/models/item.dart';
+import 'package:food_power/views/ItemDetailPage.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 class FoodItemCard extends StatelessWidget {
   final String image;
   final String title;
   final String price;
   final String rating;
-  final Item item; // Add this line to include an Item object
+  final Item item;
 
   const FoodItemCard({
     Key? key,
@@ -15,7 +16,7 @@ class FoodItemCard extends StatelessWidget {
     required this.title,
     required this.price,
     required this.rating,
-    required this.item, // Update constructor to accept an Item object
+    required this.item,
   }) : super(key: key);
 
   @override
@@ -25,18 +26,18 @@ class FoodItemCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
-      child: InkWell( // Use InkWell for tap functionality
-        onTap: () => Navigator.push( // Updated to navigate on tap
+      child: InkWell(
+        onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ItemDetailPage(item: item), // Pass the item to the detail page
+            builder: (context) => ItemDetailPage(item: item),
           ),
         ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: <Widget>[
-              Image.asset(image, height: 100), // Assuming 'image' is a valid path
+              Image.asset(image, height: 100),
               Text(title, style: GoogleFonts.nunitoSans(
                 textStyle: TextStyle(color: Colors.black, letterSpacing: .5, fontSize: 20, fontWeight: FontWeight.bold,),)),
               Text(price, style: GoogleFonts.nunitoSans(
@@ -50,7 +51,6 @@ class FoodItemCard extends StatelessWidget {
                       Text(rating),
                     ],
                   ),
-                  // The "More" button logic is now handled by the InkWell onTap above
                 ],
               ),
             ],

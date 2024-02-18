@@ -1,9 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:food_power/views/MapPage.dart';
-import 'package:food_power/views/CartPage.dart';
 import '../database/database_helper.dart';
-import 'CheckoutPage.dart';
 import 'SummaryPage.dart';
 
 class DateTimeSelectionPage extends StatefulWidget {
@@ -14,8 +12,7 @@ class DateTimeSelectionPage extends StatefulWidget {
 class _DateTimeSelectionPageState extends State<DateTimeSelectionPage> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  // Step 1: Define the Delivery Option Enum
-  DeliveryOption? _deliveryOption = DeliveryOption.pickUp; // default value
+  DeliveryOption? _deliveryOption = DeliveryOption.pickUp;
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -53,11 +50,10 @@ class _DateTimeSelectionPageState extends State<DateTimeSelectionPage> {
         elevation: 0,
         foregroundColor: Colors.black,
       ),
-      body: SingleChildScrollView( // Wrapped in SingleChildScrollView for better UI experience
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Existing widgets for date and time selection
             ListTile(
               title: Text(
                 'Select Date',
@@ -88,7 +84,6 @@ class _DateTimeSelectionPageState extends State<DateTimeSelectionPage> {
               trailing: Icon(Icons.access_time, color: Colors.black),
               onTap: () => _selectTime(context),
             ),
-            // Step 3: Integrate the Delivery Option UI
             Column(
               children: <Widget>[
                 ListTile(
@@ -132,9 +127,7 @@ class _DateTimeSelectionPageState extends State<DateTimeSelectionPage> {
                   final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
                   final totalPrice = await DatabaseHelper.instance.getTotalCartPrice(userId);
 
-                  // Check the selected delivery option and navigate accordingly
                   if (_deliveryOption == DeliveryOption.delivery) {
-                    // If 'Delivery' is selected, navigate to the MapPage
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -148,15 +141,14 @@ class _DateTimeSelectionPageState extends State<DateTimeSelectionPage> {
                       ),
                     );
                   } else {
-                    // If 'Pick Up' is selected, navigate to the CheckoutPage
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => SummaryPage(
                           userId: userId,
-                          totalPrice: totalPrice ,// Calculate or retrieve total price from cart items,
-                          deliveryAddress: 'Not Applicable', // Since it's a pickup
-                          deliveryFee: 0.0, // No delivery fee for pickup
+                          totalPrice: totalPrice ,
+                          deliveryAddress: 'Not Applicable',
+                          deliveryFee: 0.0,
                           selectedDate: selectedDate!,
                           selectedTime: selectedTime!,
                           isPickup: true,
@@ -167,7 +159,7 @@ class _DateTimeSelectionPageState extends State<DateTimeSelectionPage> {
                 },
               ),
             ),
-            // Add more widgets as needed
+
           ],
         ),
       ),
@@ -175,4 +167,4 @@ class _DateTimeSelectionPageState extends State<DateTimeSelectionPage> {
   }
 }
 
-enum DeliveryOption { pickUp, delivery } // Step 1: Moved outside the class if needed globally or inside the class if scoped to this widget only
+enum DeliveryOption { pickUp, delivery }
