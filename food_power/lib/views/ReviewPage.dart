@@ -1,10 +1,17 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:app_settings/app_settings.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
+import '../database/database_helper.dart';
 
 class ReviewPage extends StatefulWidget {
+  final int orderId;
+  const ReviewPage({Key? key, required this.orderId}) : super(key: key);
+
   @override
   _ReviewPageState createState() => _ReviewPageState();
 }
@@ -49,33 +56,48 @@ class _ReviewPageState extends State<ReviewPage> {
     );
   }
 
+  Future<String> uploadImage(File imageFile) async {
+    try {
+      String filePath = 'review_photos/${DateTime.now().millisecondsSinceEpoch}_${imageFile.path.split('/').last}';
+      await firebase_storage.FirebaseStorage.instance.ref(filePath).putFile(imageFile);
+      String downloadURL = await firebase_storage.FirebaseStorage.instance.ref(filePath).getDownloadURL();
+      return downloadURL;
+    } catch (e) {
+      print(e);
+      return '';
+    }
+  }
+
   Future<void> _sendReview() async {
     if (_imageFile != null) {
-      File image = File(_imageFile!.path);
-      print('Image uploaded successfully!');
+      String photoUrl = await uploadImage(File(_imageFile!.path));
+      String reviewText = _reviewController.text;
+      String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+      await DatabaseHelper.instance.insertReview(
+          userId, widget.orderId, photoUrl, reviewText);
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Review Sent'),
+            content: Text('Your review has been successfully sent.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
-
-    String reviewText = _reviewController.text;
-    print('Review Text: $reviewText');
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Review Sent'),
-          content: Text('Your review has been successfully sent.'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
+
+
 
   @override
   Widget build(BuildContext context) {

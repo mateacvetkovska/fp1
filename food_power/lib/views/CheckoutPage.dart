@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:food_power/views/food_menu_view.dart';
 
 import 'ReviewPage.dart';
 
 class CheckoutPage extends StatelessWidget {
+  final int orderId;
+
+  const CheckoutPage({Key? key, required this.orderId}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -10,7 +15,9 @@ class CheckoutPage extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.close, color: Colors.black45),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => FoodMenuScreen())),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -51,7 +58,7 @@ class CheckoutPage extends StatelessWidget {
         padding: EdgeInsets.all(8.0),
         child: ElevatedButton(
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewPage(orderId: orderId,)));
           },
           style: ElevatedButton.styleFrom(
             primary: Colors.teal[600], // Teal color

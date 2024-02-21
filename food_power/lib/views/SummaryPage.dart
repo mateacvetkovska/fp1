@@ -70,7 +70,8 @@ class SummaryPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
-              ElevatedButton(
+              Center(
+              child: ElevatedButton(
                 onPressed: () async {
                   final order = Order(
                     id: null,
@@ -82,8 +83,8 @@ class SummaryPage extends StatelessWidget {
                     isPickup: isPickup,
                   );
                   try {
-                    await DatabaseHelper.instance.insertOrder(order);
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CheckoutPage()));
+                    int orderId = await DatabaseHelper.instance.insertOrder(order);
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CheckoutPage(orderId: orderId,)));
                   } catch (e) {
                     print("Error inserting order: $e");
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error confirming order. Please try again.')));
@@ -92,10 +93,11 @@ class SummaryPage extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   primary: Colors.teal,
                   onPrimary: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
+                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 30.0),
                   textStyle: GoogleFonts.nunitoSans(fontSize: 18),
                 ),
                 child: Text('Confirm Order'),
+              ),
               ),
             ],
           ),

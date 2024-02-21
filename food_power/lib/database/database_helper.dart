@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import '../models/Order.dart';
 import '../models/item.dart';
 
+
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
@@ -19,7 +20,7 @@ class DatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 2, onCreate: _createDB, onUpgrade: _upgradeDB);
+    return await openDatabase(path, version: 3, onCreate: _createDB, onUpgrade: _upgradeDB);
   }
 
 
@@ -75,6 +76,18 @@ class DatabaseHelper {
         )
       ''');
     }
+    if (oldVersion < 3) {
+      await db.execute('''
+      CREATE TABLE reviews (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId TEXT,
+        orderId INTEGER,
+        photoPath TEXT,
+        reviewText TEXT,
+        FOREIGN KEY (orderId) REFERENCES orders(id)
+      )
+    ''');
+    }
   }
 
 
@@ -101,6 +114,27 @@ class DatabaseHelper {
       ('14', 'French Fries', 'Crispy golden French fries served with a side of ketchup.', 4.99, 'assets/french_fries.png', 4.1);
     ''');
     }
+  }
+
+  Future<void> insertReview(String userId, int orderId, String photoPath, String reviewText) async {
+    final db = await database;
+    Map<String, dynamic> reviewData = {
+      'userId': userId,
+      'orderId': orderId,
+      'photoPath': photoPath,
+      'reviewText': reviewText,
+    };
+    await db.insert('reviews', reviewData, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<List<Map<String, dynamic>>> getReviewsByUserId(String userId) async {
+    final db = await database;
+    List<Map<String, dynamic>> reviews = await db.query(
+      'reviews',
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+    return reviews;
   }
 
   Future<void> addToCart(String catalogId, String userId, int quantity) async {
@@ -167,22 +201,19 @@ class DatabaseHelper {
     return maps.map((map) => Item.fromMap(map)).toList();
   }
 
-  Future close() async {
-    final db = await instance.database;
-    db.close();
-  }
 
-  Future<void> insertOrder(Order order) async {
+  Future<int> insertOrder(Order order) async {
     final db = await database;
     final orderMap = order.toMap()..removeWhere((key, value) => key == 'id' && value == null);
-    await db.insert(
+    int orderId = await db.insert(
       'orders',
       orderMap,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    return orderId;
   }
 
-  Future<List<Order>> getOrders(String userId) async {
+  Future<List<Order>> getUserOrders(String userId) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'orders',
@@ -193,5 +224,19 @@ class DatabaseHelper {
     return List.generate(maps.length, (i) {
       return Order.fromMap(maps[i]);
     });
+  }
+
+  Future<void> cancelOrder(int orderId) async {
+    final db = await database;
+    await db.delete(
+      'orders',
+      where: 'id = ?',
+      whereArgs: [orderId],
+    );
+  }
+
+  Future close() async {
+    final db = await instance.database;
+    db.close();
   }
 }

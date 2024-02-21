@@ -18,10 +18,12 @@ class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web;
-    } else
-      {
-        return android;
-      }
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return ios;
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      return android;
+    }
+    return android;
   }
 
   static const FirebaseOptions web = FirebaseOptions(
@@ -41,5 +43,14 @@ class DefaultFirebaseOptions {
     projectId: 'foodpower-492d1',
     storageBucket: 'foodpower-492d1.appspot.com',
     measurementId: "G-6WJQC0XX4W"
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+      apiKey: 'AIzaSyAZpFq48VcuNs-ALtAtCMsJNP1AMht6Z2o',
+      appId: '1:847730903611:ios:bc85c4a1e878649ae5ea1e',
+      messagingSenderId: "847730903611",
+      projectId: 'foodpower-492d1',
+      storageBucket: 'foodpower-492d1.appspot.com',
+      measurementId: "G-6WJQC0XX4W"
   );
 }

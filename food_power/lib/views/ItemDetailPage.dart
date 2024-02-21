@@ -118,30 +118,36 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                       });
                     },
                   ),
+                  SizedBox(height: 16),
+                  Center(
+                  child: ElevatedButton(
+                    onPressed: _addItemToCart,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.teal[700],
+                      onPrimary: Colors.white,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.shopping_cart),
+                        SizedBox(width: 8),
+                        Text(
+                          'Add to cart',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: FloatingActionButton.extended(
-          backgroundColor: Colors.teal[700],
-          onPressed: _addItemToCart,
-          icon: Icon(Icons.shopping_cart, color: Colors.white),
-          label: Text(
-            'Add to cart',
-            style: TextStyle(
-              color: Colors.white,
-              letterSpacing: .5,
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
