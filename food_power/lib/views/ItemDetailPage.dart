@@ -16,6 +16,7 @@ class ItemDetailPage extends StatefulWidget {
 
 class _ItemDetailPageState extends State<ItemDetailPage> {
   int quantity = 1;
+  String? orderNote;
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +27,11 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
         title: Text(widget.item.name),
         actions: <Widget>[
           IconButton(
-              icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black45),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
-              }),
+            icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black45),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
+            },
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -95,24 +97,47 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 100),
+                  SizedBox(height: 16),
+                  Text(
+                    'Order Note',
+                    style: TextStyle(
+                      color: Colors.black,
+                      letterSpacing: .5,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Add a note (optional)',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        orderNote = value;
+                      });
+                    },
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.teal[700],
-        onPressed: _addItemToCart,
-        icon: Icon(Icons.shopping_cart, color: Colors.white),
-        label: Text(
-          'Add to cart',
-          style: TextStyle(
-            color: Colors.white,
-            letterSpacing: .5,
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: FloatingActionButton.extended(
+          backgroundColor: Colors.teal[700],
+          onPressed: _addItemToCart,
+          icon: Icon(Icons.shopping_cart, color: Colors.white),
+          label: Text(
+            'Add to cart',
+            style: TextStyle(
+              color: Colors.white,
+              letterSpacing: .5,
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ),
@@ -142,3 +167,4 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added to cart')));
   }
 }
+
