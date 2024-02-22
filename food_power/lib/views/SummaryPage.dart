@@ -84,6 +84,7 @@ class SummaryPage extends StatelessWidget {
                   );
                   try {
                     int orderId = await DatabaseHelper.instance.insertOrder(order);
+                    await DatabaseHelper.instance.clearCart(userId);
                     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CheckoutPage(orderId: orderId,)));
                   } catch (e) {
                     print("Error inserting order: $e");
