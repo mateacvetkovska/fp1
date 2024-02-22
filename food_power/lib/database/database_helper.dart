@@ -20,7 +20,7 @@ class DatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 3, onCreate: _createDB, onUpgrade: _upgradeDB);
+    return await openDatabase(path, version: 4, onCreate: _createDB, onUpgrade: _upgradeDB);
   }
 
 
@@ -58,6 +58,18 @@ class DatabaseHelper {
   )
 ''');
 
+    await db.execute('''
+    CREATE TABLE reviews (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId TEXT,
+      orderId INTEGER,
+      photoPath TEXT,
+      reviewText TEXT,
+      FOREIGN KEY (orderId) REFERENCES orders(id)
+    )
+  ''');
+
+
 
     await _insertInitialData(db);
   }
@@ -92,7 +104,6 @@ class DatabaseHelper {
 
 
 
-
   Future<void> _insertInitialData(Database db) async {
     final List<Map<String, dynamic>> existingData = await db.query('catalog');
     if (existingData.isEmpty) {
@@ -114,6 +125,11 @@ class DatabaseHelper {
       ('14', 'French Fries', 'Crispy golden French fries served with a side of ketchup.', 4.99, 'assets/french_fries.png', 4.1);
     ''');
     }
+  }
+
+  Future<void> clearCart(String userId) async {
+    final db = await database;
+    await db.delete('cart_items', where: 'userId = ?', whereArgs: [userId]);
   }
 
   Future<void> insertReview(String userId, int orderId, String photoPath, String reviewText) async {
